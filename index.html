@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard Zahra - Neobrutalism</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       OKLCH COLOR SYSTEM & NEOBRUTALISM TOKENS
+       ============================================================ */
+    :root {
+      /* Neobrutalist Base Canvas */
+      --bg-canvas: oklch(0.94 0.05 95);
+      --bg-grid: oklch(0 0 0 / 0.07);
+      --surface-white: oklch(1 0 0);
+      --border-black: oklch(0 0 0);
+      
+      /* Typography */
+      --ink: oklch(0 0 0);
+      --ink-muted: oklch(0.35 0.02 240);
+      --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Space Mono', 'Courier New', monospace;
+
+      /* Vibrant Neobrutalist Accent Palette */
+      --neo-yellow: oklch(0.92 0.18 95);
+      --neo-lime: oklch(0.86 0.22 140);
+      --neo-coral: oklch(0.72 0.22 25);
+      --neo-cyan: oklch(0.84 0.16 210);
+      --neo-pink: oklch(0.76 0.22 340);
+      --neo-purple: oklch(0.72 0.22 300);
+      --neo-orange: oklch(0.78 0.19 55);
+
+      /* Shadow & Radius Tokens */
+      --border-thick: 3px solid var(--border-black);
+      --border-thick-sm: 2.5px solid var(--border-black);
+      --shadow-base: 4px 4px 0px var(--border-black);
+      --shadow-lg: 6px 6px 0px var(--border-black);
+      --shadow-sm: 2px 2px 0px var(--border-black);
+      --radius-neo: 10px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      min-height: 100dvh;
+      background-color: var(--bg-canvas);
+      background-image: 
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: var(--ink);
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Accessibility */
+    a[href], button, [role="button"] { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    :focus-visible {
+      outline: 3px solid var(--neo-purple);
+      outline-offset: 3px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Main App Container */
+    .neo-app-shell {
+      width: 100%;
+      max-width: 660px;
+      background: var(--surface-white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--radius-neo);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Screen Views */
+    .screen {
+      display: none;
+      padding: 24px;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: neoPop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes neoPop {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ============================================================
+       SCREEN 1: CATEGORY SELECTION
+       ============================================================ */
+    .cat-headline-block {
+      margin-bottom: 20px;
+    }
+
+    .cat-headline-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cat-headline-sub {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .category-card {
+      background: var(--surface-white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-base);
+      border-radius: var(--radius-neo);
+      padding: 16px;
+      text-align: left;
+      font-family: var(--font-display);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 110px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      position: relative;
+    }
+
+    .category-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0px var(--border-black);
+    }
+
+    .category-card:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--border-black);
+    }
+
+    .cat-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cat-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border: 2px solid var(--border-black);
+      border-radius: 4px;
+      text-transform: uppercase;
+      box-shadow: 1.5px 1.5px 0px var(--border-black);
+    }
+
+    .cat-card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .cat-card-desc {
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    .cat-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-top: 2px solid oklch(0 0 0 / 0.1);
+      padding-top: 8px;
+    }
+
+    /* Category Pill Colors */
+    .category-card[data-cat="sirkulasi"] .cat-pill { background: var(--neo-coral); color: white; }
+    .category-card[data-cat="pernapasan"] .cat-pill { background: var(--neo-cyan); }
+    .category-card[data-cat="pencernaan"] .cat-pill { background: var(--neo-yellow); }
+    .category-card[data-cat="urinari"] .cat-pill { background: var(--neo-orange); }
+    .category-card[data-cat="saraf"] .cat-pill { background: var(--neo-purple); color: white; }
+    .category-card[data-cat="rangka"] .cat-pill { background: oklch(0.9 0 0); }
+    .category-card[data-cat="endokrin"] .cat-pill { background: var(--neo-lime); }
+
+    /* ============================================================
+       SCREEN 2: FLASHCARD STUDY INTERACTION
+       ============================================================ */
+    .deck-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .neo-btn {
+      background: var(--surface-white);
+      color: var(--ink);
+      border: var(--border-thick-sm);
+      box-shadow: var(--shadow-base);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s ease;
+    }
+
+    .neo-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--border-black);
+    }
+
+    .neo-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--border-black);
+    }
+
+    .deck-counter-badge {
+      background: var(--neo-yellow);
+      border: var(--border-thick-sm);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    /* Chunky Progress Track */
+    .neo-progress-wrap {
+      background: var(--surface-white);
+      border: var(--border-thick-sm);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      height: 18px;
+      padding: 2px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .neo-progress-fill {
+      height: 100%;
+      background: var(--neo-lime);
+      border-radius: 999px;
+      border: 1.5px solid var(--border-black);
+      transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 0%;
+    }
+
+    /* 3D Flashcard Presentation */
+    .flashcard-stage {
+      perspective: 1000px;
+      min-height: 290px;
+      margin-bottom: 20px;
+      display: flex;
+    }
+
+    .flashcard-card {
+      width: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+      border-radius: var(--radius-neo);
+      cursor: pointer;
+    }
+
+    .flashcard-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: var(--surface-white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--radius-neo);
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .card-face.card-back {
+      transform: rotateY(180deg);
+      background: oklch(0.99 0.02 95);
+    }
+
+    .card-main-content {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: -0.3px;
+    }
+
+    .card-back .card-main-content {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--ink);
+      background: var(--neo-yellow);
+      border: 2.5px solid var(--border-black);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-sm);
+      padding: 24px 20px;
+    }
+
+    /* Chunky Action Buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+
+    .btn-action {
+      min-height: 52px;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-base);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.05s ease, box-shadow 0.05s ease;
+    }
+
+    .btn-not-yet {
+      background: var(--neo-coral);
+      color: #ffffff;
+    }
+    .btn-not-yet:hover {
+      background: oklch(0.68 0.24 25);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--border-black);
+    }
+
+    .btn-got-it {
+      background: var(--neo-lime);
+      color: var(--ink);
+    }
+    .btn-got-it:hover {
+      background: oklch(0.82 0.24 140);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--border-black);
+    }
+
+    .btn-action:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--border-black);
+    }
+
+    /* ============================================================
+       SCREEN 3: EVALUASI / SUMMARY
+       ============================================================ */
+    .summary-card {
+      background: var(--neo-yellow);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--radius-neo);
+      padding: 30px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .summary-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .summary-subtitle {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      margin-bottom: 16px;
+    }
+
+    .score-banner {
+      background: var(--surface-white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-base);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+      padding: 12px 28px;
+      margin-bottom: 16px;
+    }
+
+    .score-digits {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      font-family: var(--font-mono);
+    }
+
+    .score-feedback {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .summary-actions-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 540px) {
+      body { padding: 12px; }
+      .screen { padding: 16px; }
+      .category-grid { grid-template-columns: 1fr; }
+      .card-main-content { font-size: 1.2rem; }
+      .card-back .card-main-content { font-size: 1.15rem; }
+      .action-grid { grid-template-columns: 1fr; }
+      .shortcuts-footer span:last-child { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NEOBRUTALISM APP SHELL ==================== -->
+  <main class="neo-app-shell" id="appShell">
+    <h1 class="sr-only">Flashcard Zahra - Neobrutalism Edition</h1>
+
+    <!-- ==================== SCREEN 1: KATEGORI ==================== -->
+    <section class="screen screen-categories active" id="screenCategories" aria-label="Pilih Topik Belajar">
+      <div class="cat-headline-block">
+        <h2 class="cat-headline-title">PILIH SISTEM ANATOMI</h2>
+        <p class="cat-headline-sub">Pilih salah satu topik di bawah untuk memulai sesi latihan flashcard:</p>
+      </div>
+
+      <div class="category-grid" id="categoryGrid" role="list"></div>
+    </section>
+
+    <!-- ==================== SCREEN 2: FLASHCARD ==================== -->
+    <section class="screen screen-flashcard" id="screenFlashcard" aria-label="Latihan Flashcard">
+      <h2 class="sr-only" id="flashcardDeckHeading">Latihan Flashcard</h2>
+
+      <!-- Topbar Controls -->
+      <div class="deck-topbar">
+        <button class="neo-btn" id="btnBackToCat">
+          <span aria-hidden="true">&#8592;</span> Kategori (Esc)
+        </button>
+        
+        <div class="deck-counter-badge" id="deckCounterBadge" aria-live="polite">
+          01 / 04
+        </div>
+
+        <button class="neo-btn" id="btnShuffleDeck" aria-label="Acak urutan kartu">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 100 100" style="display:inline-block;vertical-align:middle;"><path fill="currentColor" d="M19.401 62.222H8.022a2.536 2.536 0 0 0-3.013 2h-.047v11h.076a2.53 2.53 0 0 0 2.078 1.906v.094h17v-.061c1.739-.021 3.23-1.008 4.002-2.443L38.63 64.206L28.024 53.599zm75.25-31.446l-18.614-13.26a1.25 1.25 0 0 0-1.319-.094a1.28 1.28 0 0 0-.688 1.146l.002 5.599H59.116v.026a4.58 4.58 0 0 0-2.781 1.138l-.021-.021L45.722 35.9l10.607 10.607l7.341-7.341h10.368l.002 6.005c0 .481.271.924.7 1.146s.946.183 1.34-.099l18.576-13.346c.338-.241.461-.631.461-1.046v-.003c-.001-.417-.126-.806-.466-1.047"/><path fill="currentColor" d="M94.578 67.126L76.002 53.781a1.289 1.289 0 0 0-2.039 1.047l-.002 6.005H63.592L28.04 25.281c-.772-1.435-2.263-2.421-4.001-2.442v-.061h-17v.094a2.53 2.53 0 0 0-2.078 1.906h-.077v11h.049a2.535 2.535 0 0 0 3.013 2h11.378l36.913 36.913l.021-.021a4.6 4.6 0 0 0 2.782 1.138v.026h14.916l-.002 5.599c0 .484.26.928.688 1.146a1.25 1.25 0 0 0 1.319-.093l18.614-13.26c.34-.242.465-.631.465-1.049v-.004c-.001-.415-.124-.806-.462-1.047"/></svg>
+          Acak
+        </button>
+      </div>
+
+      <!-- Chunky Progress Bar -->
+      <div class="neo-progress-wrap" role="progressbar" id="progressBarEl" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="neo-progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- 3D Flashcard -->
+      <div class="flashcard-stage">
+        <div class="flashcard-card" id="flashcardEl" role="button" tabindex="0" aria-label="Kartu pertanyaan. Tekan spasi atau klik untuk membalik.">
+          <!-- Front Side -->
+          <div class="card-face card-front">
+            <div class="card-main-content" id="frontText">Memuat pertanyaan...</div>
+          </div>
+
+          <!-- Back Side -->
+          <div class="card-face card-back">
+            <div class="card-main-content" id="backText">Memuat jawaban...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assessment Actions -->
+      <div class="action-grid" id="actionGrid">
+        <button class="btn-action btn-not-yet" id="btnNotYet" aria-label="Tandai belum ingat">
+          <span aria-hidden="true">&#10005;</span> Belum Ingat
+        </button>
+        <button class="btn-action btn-got-it" id="btnGotIt" aria-label="Tandai sudah paham">
+          <span aria-hidden="true">&#10003;</span> Sudah Paham
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: EVALUASI ==================== -->
+    <section class="screen screen-summary" id="screenSummary" aria-label="Hasil Latihan">
+      <div class="summary-card">
+        <h2 class="summary-title">SESI LATIHAN SELESAI!</h2>
+        <p class="summary-subtitle" id="summaryFeedbackText">Luar biasa! Semua kartu berhasil dikuasai.</p>
+
+        <div class="score-banner">
+          <div class="score-digits" id="scoreDigits">04 / 04</div>
+        </div>
+
+        <p class="score-feedback" id="summaryPercentText">100% Penguasaan Materi</p>
+      </div>
+
+      <div class="summary-actions-stack" id="summaryActions"></div>
+    </section>
+  </main>
+
+  <noscript>
+    <div style="background:#fff;padding:24px;margin:24px auto;max-width:400px;font-family:sans-serif;border:3px solid #000;box-shadow:4px 4px 0 #000;">
+      Aplikasi ini membutuhkan JavaScript untuk berfungsi.
+    </div>
+  </noscript>
+
+  <script>
+    // ============================================================
+    // PROCEDURAL AUDIO SYNTHESIZER (Pure Web Audio API)
+    // ============================================================
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration, type = 'square', gainVal = 0.05) {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    const sound = {
+      click: () => playTone(900, 0.04, 'square', 0.04),
+      flip: () => {
+        if (!soundEnabled) return;
+        initAudio();
+        if (!audioCtx) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(340, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(680, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.08);
+        } catch (e) {}
+      },
+      correct: () => {
+        playTone(587.33, 0.06, 'square', 0.05);
+        setTimeout(() => playTone(880, 0.1, 'square', 0.05), 70);
+      },
+      wrong: () => {
+        playTone(280, 0.09, 'sawtooth', 0.06);
+        setTimeout(() => playTone(220, 0.12, 'sawtooth', 0.06), 90);
+      },
+      complete: () => {
+        playTone(523.25, 0.08, 'triangle', 0.06);
+        setTimeout(() => playTone(659.25, 0.08, 'triangle', 0.06), 90);
+        setTimeout(() => playTone(783.99, 0.14, 'triangle', 0.07), 180);
+      }
+    };
+
+    // ============================================================
+    // DATA KATEGORI ANATOMI & PERTANYAAN
+    // ============================================================
+    const categories = [
+      {
+        id: 'sirkulasi',
+        name: 'Sistem Sirkulasi',
+        desc: 'Jantung, katup, dan sirkulasi darah',
+        tag: 'CARDIO',
+        cards: [
+          { front: 'Otot utama pemompa darah ke seluruh tubuh?', back: 'Ventrikel kiri' },
+          { front: 'Katup antara atrium kiri - ventrikel kiri?', back: 'Katup mitral / bikuspidalis' },
+          { front: 'Pembuluh darah yang membawa darah kaya oksigen dari jantung ke tubuh?', back: 'Aorta' },
+          { front: 'Pembuluh balik darah miskin oksigen ke atrium kanan?', back: 'Vena cava (superior + inferior)' }
+        ]
+      },
+      {
+        id: 'pernapasan',
+        name: 'Sistem Pernapasan',
+        desc: 'Paru-paru, diafragma, dan pertukaran gas',
+        tag: 'PULMO',
+        cards: [
+          { front: 'Organ tempat pertukaran gas utama?', back: 'Alveolus paru-paru' },
+          { front: 'Bagian yang memisahkan rongga dada dan perut?', back: 'Diafragma' },
+          { front: 'Jumlah lobus paru kanan?', back: '3 lobus' },
+          { front: 'Jumlah lobus paru kiri?', back: '2 lobus (ada ruang untuk jantung)' }
+        ]
+      },
+      {
+        id: 'pencernaan',
+        name: 'Sistem Pencernaan',
+        desc: 'Saluran cerna, empedu, dan kelenjar enzim',
+        tag: 'DIGEST',
+        cards: [
+          { front: 'Organ penghasil empedu?', back: 'Hati' },
+          { front: 'Tempat penyimpanan empedu?', back: 'Kantung empedu' },
+          { front: 'Usus halus urutan dari lambung?', back: 'Duodenum → Jejunum → Ileum' },
+          { front: 'Kelenjar yang menghasilkan enzim pencernaan sekaligus hormon?', back: 'Pankreas' }
+        ]
+      },
+      {
+        id: 'urinari',
+        name: 'Sistem Urinari',
+        desc: 'Ginjal, filtrasi nefron, dan saluran urine',
+        tag: 'RENAL',
+        cards: [
+          { front: 'Unit fungsional ginjal?', back: 'Nefron' },
+          { front: 'Struktur tempat filtrasi darah di nefron?', back: 'Korpuskel Malpighi (Glomerulus + Kapsul Bowman)' },
+          { front: 'Saluran yang membawa urine dari ginjal ke kandung kemih?', back: 'Ureter' },
+          { front: 'Saluran keluarnya urine dari kandung kemih?', back: 'Uretra' }
+        ]
+      },
+      {
+        id: 'saraf',
+        name: 'Sistem Saraf',
+        desc: 'Otak besar, otak kecil, dan neuron',
+        tag: 'NEURO',
+        cards: [
+          { front: 'Bagian otak untuk keseimbangan & koordinasi gerak?', back: 'Serebelum' },
+          { front: 'Bagian otak untuk kesadaran, pernapasan, detak jantung?', back: 'Batang otak' },
+          { front: 'Sel unit fungsional sistem saraf?', back: 'Neuron' }
+        ]
+      },
+      {
+        id: 'rangka',
+        name: 'Sistem Rangka',
+        desc: 'Jumlah tulang dewasa, femur, dan klavikula',
+        tag: 'OSTEO',
+        cards: [
+          { front: 'Jumlah tulang dewasa?', back: '206 tulang' },
+          { front: 'Tulang paha terpanjang di tubuh?', back: 'Femur' },
+          { front: 'Tulang selangka?', back: 'Klavikula' }
+        ]
+      },
+      {
+        id: 'endokrin',
+        name: 'Sistem Endokrin',
+        desc: 'Kelenjar hipofisis, tiroid, dan adrenal',
+        tag: 'HORMON',
+        cards: [
+          { front: 'Kelenjar master pengatur kelenjar lain?', back: 'Hipofisis' },
+          { front: 'Kelenjar di leher yang hasilkan tiroksin?', back: 'Tiroid' },
+          { front: 'Kelenjar di atas ginjal?', back: 'Adrenal (Suprarenal)' }
+        ]
+      }
+    ];
+
+    // ============================================================
+    // STATE MANAGEMENT
+    // ============================================================
+    let currentScreen = 'categories';
+    let currentCategory = null;
+    let originalCards = [];
+    let currentCards = [];
+    let currentIndex = 0;
+    let isFlipped = false;
+    let results = [];
+
+    // DOM Elements
+    const screenCategories = document.getElementById('screenCategories');
+    const screenFlashcard = document.getElementById('screenFlashcard');
+    const screenSummary = document.getElementById('screenSummary');
+    const categoryGrid = document.getElementById('categoryGrid');
+
+    const flashcardEl = document.getElementById('flashcardEl');
+    const frontText = document.getElementById('frontText');
+    const backText = document.getElementById('backText');
+    const deckCounterBadge = document.getElementById('deckCounterBadge');
+    const progressFill = document.getElementById('progressFill');
+    const progressBarEl = document.getElementById('progressBarEl');
+
+    // ============================================================
+    // SCREEN MANAGEMENT
+    // ============================================================
+    function showScreen(name) {
+      screenCategories.classList.remove('active');
+      screenFlashcard.classList.remove('active');
+      screenSummary.classList.remove('active');
+
+      if (name === 'categories') {
+        screenCategories.classList.add('active');
+      } else if (name === 'flashcard') {
+        screenFlashcard.classList.add('active');
+      } else if (name === 'summary') {
+        screenSummary.classList.add('active');
+      }
+      currentScreen = name;
+    }
+
+    // ============================================================
+    // RENDER CATEGORIES
+    // ============================================================
+    function renderCategories() {
+      categoryGrid.innerHTML = categories.map(cat => `
+        <button class="category-card" data-cat="${cat.id}" role="listitem">
+          <div class="cat-card-header">
+            <span class="cat-pill">${cat.tag}</span>
+            <span style="font-family:var(--font-mono);font-size:0.8rem;font-weight:700;">${cat.cards.length} KARTU</span>
+          </div>
+          <div>
+            <div class="cat-card-title">${cat.name}</div>
+            <div class="cat-card-desc">${cat.desc}</div>
+          </div>
+          <div class="cat-card-footer">
+            <span>MULAI BELAJAR</span>
+            <span>&rarr;</span>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    categoryGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('.category-card');
+      if (card) {
+        sound.click();
+        selectCategory(card.dataset.cat);
+      }
+    });
+
+    function selectCategory(catId) {
+      currentCategory = categories.find(c => c.id === catId);
+      originalCards = currentCategory.cards.slice();
+      currentCards = originalCards.slice();
+      currentIndex = 0;
+      isFlipped = false;
+      results = [];
+
+      updateFlashcardView();
+      showScreen('flashcard');
+      flashcardEl.focus();
+    }
+
+    // ============================================================
+    // FLASHCARD LOGIC
+    // ============================================================
+    function updateFlashcardView() {
+      const card = currentCards[currentIndex];
+      frontText.textContent = card.front;
+      backText.textContent = card.back;
+
+      isFlipped = false;
+      flashcardEl.classList.remove('flipped');
+
+      const currentNum = String(currentIndex + 1).padStart(2, '0');
+      const totalNum = String(currentCards.length).padStart(2, '0');
+      deckCounterBadge.textContent = `${currentNum} / ${totalNum}`;
+
+      const pct = Math.round(((currentIndex + 1) / currentCards.length) * 100);
+      progressFill.style.width = pct + '%';
+      progressBarEl.setAttribute('aria-valuenow', pct);
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      sound.flip();
+      flashcardEl.classList.toggle('flipped', isFlipped);
+    }
+
+    flashcardEl.addEventListener('click', flipCard);
+    flashcardEl.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        flipCard();
+      }
+    });
+
+    // Assessment Actions
+    function assessCard(gotIt) {
+      if (gotIt) sound.correct();
+      else sound.wrong();
+
+      results.push({ card: currentCards[currentIndex], gotIt });
+
+      currentIndex++;
+      if (currentIndex >= currentCards.length) {
+        showSummary();
+      } else {
+        updateFlashcardView();
+      }
+    }
+
+    document.getElementById('btnNotYet').addEventListener('click', () => assessCard(false));
+    document.getElementById('btnGotIt').addEventListener('click', () => assessCard(true));
+
+    // Shuffle Button
+    document.getElementById('btnShuffleDeck').addEventListener('click', () => {
+      sound.click();
+      const remaining = currentCards.slice(currentIndex);
+      if (remaining.length <= 1) return;
+
+      for (let i = remaining.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+      }
+      currentCards = currentCards.slice(0, currentIndex).concat(remaining);
+      updateFlashcardView();
+    });
+
+    // Return to Categories
+    function returnToCategories() {
+      sound.click();
+      showScreen('categories');
+    }
+
+    document.getElementById('btnBackToCat').addEventListener('click', returnToCategories);
+
+    // ============================================================
+    // SUMMARY SCREEN
+    // ============================================================
+    function showSummary() {
+      sound.complete();
+      showScreen('summary');
+
+      const correctCount = results.filter(r => r.gotIt).length;
+      const total = results.length;
+      const pct = Math.round((correctCount / total) * 100);
+
+      document.getElementById('scoreDigits').textContent = 
+        `${String(correctCount).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+      document.getElementById('summaryPercentText').textContent = `${pct}% Penguasaan Materi`;
+
+      const feedbackEl = document.getElementById('summaryFeedbackText');
+      if (pct === 100) {
+        feedbackEl.textContent = 'SEMPURNA! SEMUA KARTU DIKUASAI \uD83C\uDFC6';
+      } else if (pct >= 75) {
+        feedbackEl.textContent = 'BAGUS SEKALI! HAMPIR TUNTAS \uD83D\uDD25';
+      } else {
+        feedbackEl.textContent = 'PERLU PENGULANGAN MATERI \uD83D\uDCAA';
+      }
+
+      const actionsEl = document.getElementById('summaryActions');
+      let buttonsHtml = '';
+
+      if (correctCount < total) {
+        const wrongCount = total - correctCount;
+        buttonsHtml += `
+          <button class="btn-action btn-got-it" style="background:var(--neo-orange);color:var(--ink);" data-action="retryWrong">
+            Pelajari Lagi ${wrongCount} Kartu yang Belum Ingat
+          </button>
+        `;
+      }
+
+      buttonsHtml += `
+        <button class="btn-action neo-btn" data-action="retryAll">
+          Ulangi Semua Kartu
+        </button>
+        <button class="btn-action neo-btn" data-action="toMenu">
+          Kembali ke Menu Kategori
+        </button>
+      `;
+
+      actionsEl.innerHTML = buttonsHtml;
+    }
+
+    document.getElementById('summaryActions').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      sound.click();
+      const action = btn.dataset.action;
+
+      if (action === 'retryWrong') {
+        const wrongCards = results.filter(r => !r.gotIt).map(r => r.card);
+        currentCards = wrongCards;
+        currentIndex = 0;
+        results = [];
+        updateFlashcardView();
+        showScreen('flashcard');
+        flashcardEl.focus();
+      } else if (action === 'retryAll') {
+        currentCards = originalCards.slice();
+        currentIndex = 0;
+        results = [];
+        updateFlashcardView();
+        showScreen('flashcard');
+        flashcardEl.focus();
+      } else if (action === 'toMenu') {
+        showScreen('categories');
+      }
+    });
+
+    // ============================================================
+    // GLOBAL KEYBOARD NAVIGATION
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+      if (currentScreen !== 'flashcard') return;
+
+      if (e.key === 'Escape') {
+        returnToCategories();
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+        assessCard(true);
+      } else if (e.key === 'ArrowLeft') {
+        assessCard(false);
+      }
+    });
+
+    // ============================================================
+    // TOUCH SWIPE NAVIGATION
+    // ============================================================
+    let touchStartX = 0;
+    flashcardEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    flashcardEl.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 60) {
+        if (dx > 0) assessCard(true);
+        else assessCard(false);
+      }
+    }, { passive: true });
+
+    // Initial Render
+    renderCategories();
+  </script>
+</body>
+</html>
