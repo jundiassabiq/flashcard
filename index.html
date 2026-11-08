@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Flashcard Zahra - Neobrutalism</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,14 +14,14 @@
     :root {
       /* Neobrutalist Base Canvas */
       --bg-canvas: oklch(0.94 0.05 95);
-      --bg-grid: oklch(0 0 0 / 0.07);
+      --bg-grid: oklch(0 0 0 / 0.06);
       --surface-white: oklch(1 0 0);
       --border-black: oklch(0 0 0);
       
       /* Typography */
       --ink: oklch(0 0 0);
       --ink-muted: oklch(0.35 0.02 240);
-      --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'Space Mono', 'Courier New', monospace;
 
       /* Vibrant Neobrutalist Accent Palette */
@@ -33,14 +33,27 @@
       --neo-purple: oklch(0.72 0.22 300);
       --neo-orange: oklch(0.78 0.19 55);
 
-      /* Shadow & Radius Tokens */
+      /* Shadow & Radius Tokens (Desktop register) */
       --border-thick: 3px solid var(--border-black);
       --border-thick-sm: 2.5px solid var(--border-black);
       --shadow-base: 4px 4px 0px var(--border-black);
       --shadow-lg: 6px 6px 0px var(--border-black);
       --shadow-sm: 2px 2px 0px var(--border-black);
-      --radius-neo: 10px;
-      --radius-sm: 6px;
+      --radius-neo: 12px;
+      --radius-sm: 8px;
+    }
+
+    /* Mobile register for crispness and space optimization */
+    @media (max-width: 600px) {
+      :root {
+        --border-thick: 2.5px solid var(--border-black);
+        --border-thick-sm: 2px solid var(--border-black);
+        --shadow-base: 3px 3px 0px var(--border-black);
+        --shadow-lg: 4px 4px 0px var(--border-black);
+        --shadow-sm: 2px 2px 0px var(--border-black);
+        --radius-neo: 10px;
+        --radius-sm: 6px;
+      }
     }
 
     *, *::before, *::after {
@@ -50,7 +63,12 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    html, body {
+    html {
+      height: 100%;
+    }
+
+    body {
+      min-height: 100%;
       min-height: 100dvh;
       background-color: var(--bg-canvas);
       background-image: 
@@ -60,13 +78,23 @@
       color: var(--ink);
       font-family: var(--font-display);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+      justify-content: flex-start;
+      padding: clamp(8px, 2.5vw, 24px);
+      padding-top: max(clamp(8px, 2.5vw, 24px), env(safe-area-inset-top));
+      padding-bottom: max(clamp(8px, 2.5vw, 24px), env(safe-area-inset-bottom));
+      padding-left: max(clamp(8px, 2.5vw, 24px), env(safe-area-inset-left));
+      padding-right: max(clamp(8px, 2.5vw, 24px), env(safe-area-inset-right));
+      overflow-x: hidden;
+      width: 100%;
     }
 
     /* Accessibility */
-    a[href], button, [role="button"] { cursor: pointer; }
+    a[href], button, [role="button"] { 
+      cursor: pointer; 
+      -webkit-tap-highlight-color: transparent;
+    }
     button:disabled { cursor: not-allowed; opacity: 0.5; }
     :focus-visible {
       outline: 3px solid var(--neo-purple);
@@ -85,34 +113,43 @@
       border: 0;
     }
 
-    /* Main App Container */
+    /* ============================================================
+       MAIN APP SHELL (Responsive Container)
+       ============================================================ */
     .neo-app-shell {
       width: 100%;
-      max-width: 660px;
+      max-width: 900px;
+      margin: auto 0;
       background: var(--surface-white);
       border: var(--border-thick);
       box-shadow: var(--shadow-lg);
       border-radius: var(--radius-neo);
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      transition: max-width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+
+    /* Study mode focuses on a comfortable reading width */
+    .neo-app-shell.view-study {
+      max-width: 620px;
     }
 
     /* Screen Views */
     .screen {
       display: none;
-      padding: 24px;
+      padding: clamp(14px, 3.5vw, 28px);
       flex-direction: column;
       flex: 1;
+      width: 100%;
     }
 
     .screen.active {
       display: flex;
-      animation: neoPop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: neoPop 0.16s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     @keyframes neoPop {
-      from { opacity: 0; transform: scale(0.98); }
+      from { opacity: 0; transform: scale(0.985); }
       to { opacity: 1; transform: scale(1); }
     }
 
@@ -120,30 +157,55 @@
        SCREEN 1: CATEGORY SELECTION
        ============================================================ */
     .cat-headline-block {
-      margin-bottom: 20px;
+      margin-bottom: clamp(14px, 3vw, 22px);
+    }
+
+    .cat-brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--neo-yellow);
+      border: 1.5px solid var(--border-black);
+      box-shadow: 2px 2px 0px var(--border-black);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
     }
 
     .cat-headline-title {
-      font-size: 1.6rem;
+      font-size: clamp(1.28rem, 4.2vw, 1.85rem);
       font-weight: 800;
-      letter-spacing: -0.8px;
-      line-height: 1.2;
+      letter-spacing: -0.6px;
+      line-height: 1.18;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
     .cat-headline-sub {
-      font-size: 0.95rem;
+      font-size: clamp(0.84rem, 2.4vw, 0.96rem);
       color: var(--ink-muted);
-      margin-top: 4px;
+      margin-top: 6px;
       font-weight: 500;
+      line-height: 1.4;
     }
 
+    /* Adaptive category grid: 1 column on phone, 2 columns on tablet/desktop */
     .category-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
+      grid-template-columns: 1fr;
+      gap: clamp(10px, 2vw, 16px);
+      width: 100%;
+    }
+
+    @media (min-width: 600px) {
+      .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .category-card {
@@ -151,20 +213,24 @@
       border: var(--border-thick);
       box-shadow: var(--shadow-base);
       border-radius: var(--radius-neo);
-      padding: 16px;
+      padding: clamp(14px, 2.5vw, 18px);
       text-align: left;
       font-family: var(--font-display);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 110px;
+      gap: 12px;
+      min-height: 105px;
       transition: transform 0.08s ease, box-shadow 0.08s ease;
       position: relative;
+      width: 100%;
     }
 
-    .category-card:hover {
-      transform: translate(-3px, -3px);
-      box-shadow: 7px 7px 0px var(--border-black);
+    @media (hover: hover) {
+      .category-card:hover {
+        transform: translate(-3px, -3px);
+        box-shadow: 6px 6px 0px var(--border-black);
+      }
     }
 
     .category-card:active {
@@ -177,32 +243,38 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 8px;
     }
 
     .cat-pill {
       font-family: var(--font-mono);
       font-size: 0.72rem;
       font-weight: 700;
-      padding: 2px 8px;
-      border: 2px solid var(--border-black);
+      padding: 3px 8px;
+      border: 1.5px solid var(--border-black);
       border-radius: 4px;
       text-transform: uppercase;
       box-shadow: 1.5px 1.5px 0px var(--border-black);
     }
 
+    .cat-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
     .cat-card-title {
-      font-size: 1.15rem;
+      font-size: clamp(1.05rem, 2.5vw, 1.22rem);
       font-weight: 800;
       letter-spacing: -0.3px;
       margin-bottom: 4px;
+      line-height: 1.25;
     }
 
     .cat-card-desc {
-      font-size: 0.84rem;
+      font-size: clamp(0.82rem, 2vw, 0.88rem);
       color: var(--ink-muted);
       line-height: 1.35;
-      margin-bottom: 10px;
     }
 
     .cat-card-footer {
@@ -210,9 +282,9 @@
       align-items: center;
       justify-content: space-between;
       font-family: var(--font-mono);
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      border-top: 2px solid oklch(0 0 0 / 0.1);
+      border-top: 1.5px solid oklch(0 0 0 / 0.1);
       padding-top: 8px;
     }
 
@@ -232,8 +304,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: clamp(6px, 2vw, 12px);
+      margin-bottom: clamp(10px, 2.5vw, 16px);
+      width: 100%;
     }
 
     .neo-btn {
@@ -243,19 +316,23 @@
       box-shadow: var(--shadow-base);
       border-radius: var(--radius-sm);
       font-family: var(--font-display);
-      font-size: 0.9rem;
+      font-size: clamp(0.82rem, 2.5vw, 0.92rem);
       font-weight: 700;
-      padding: 8px 14px;
-      min-height: 42px;
+      padding: clamp(6px, 1.8vw, 8px) clamp(10px, 2.5vw, 14px);
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s ease;
+      white-space: nowrap;
     }
 
-    .neo-btn:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0px var(--border-black);
+    @media (hover: hover) {
+      .neo-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px var(--border-black);
+      }
     }
 
     .neo-btn:active {
@@ -263,15 +340,34 @@
       box-shadow: 2px 2px 0px var(--border-black);
     }
 
+    .kbd-hint {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      opacity: 0.7;
+      margin-left: 2px;
+    }
+
+    /* On mobile, hide keyboard hints to keep buttons clean & spacious */
+    @media (max-width: 600px) {
+      .kbd-hint {
+        display: none;
+      }
+    }
+
     .deck-counter-badge {
       background: var(--neo-yellow);
       border: var(--border-thick-sm);
       box-shadow: var(--shadow-sm);
       border-radius: var(--radius-sm);
-      padding: 6px 14px;
+      padding: clamp(6px, 1.8vw, 8px) clamp(10px, 2.5vw, 14px);
       font-family: var(--font-mono);
-      font-size: 0.95rem;
+      font-size: clamp(0.85rem, 2.8vw, 1rem);
       font-weight: 700;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
     }
 
     /* Chunky Progress Track */
@@ -280,36 +376,39 @@
       border: var(--border-thick-sm);
       box-shadow: var(--shadow-sm);
       border-radius: 999px;
-      height: 18px;
+      height: 16px;
       padding: 2px;
-      margin-bottom: 20px;
+      margin-bottom: clamp(12px, 2.5vw, 18px);
       overflow: hidden;
+      width: 100%;
     }
 
     .neo-progress-fill {
       height: 100%;
       background: var(--neo-lime);
       border-radius: 999px;
-      border: 1.5px solid var(--border-black);
+      border: 1px solid var(--border-black);
       transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       width: 0%;
     }
 
-    /* 3D Flashcard Presentation */
+    /* 3D Flashcard Presentation - Spacious & Flexible */
     .flashcard-stage {
       perspective: 1000px;
-      min-height: 290px;
-      margin-bottom: 20px;
+      min-height: clamp(230px, 44dvh, 320px);
+      margin-bottom: clamp(12px, 2.5vw, 18px);
       display: flex;
+      width: 100%;
     }
 
     .flashcard-card {
       width: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+      transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.3, 1);
       border-radius: var(--radius-neo);
       cursor: pointer;
+      outline: none;
     }
 
     .flashcard-card.flipped {
@@ -325,88 +424,175 @@
       border: var(--border-thick);
       box-shadow: var(--shadow-lg);
       border-radius: var(--radius-neo);
-      padding: 32px 24px;
+      padding: clamp(14px, 3.5vw, 24px);
       display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
       text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: box-shadow 0.15s ease;
+    }
+
+    @media (hover: hover) {
+      .flashcard-card:hover .card-face {
+        box-shadow: 7px 7px 0px var(--border-black);
+      }
     }
 
     .card-face.card-back {
       transform: rotateY(180deg);
-      background: oklch(0.99 0.02 95);
+      background: var(--neo-yellow);
     }
 
+    .card-header-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .card-type-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1.5px solid var(--border-black);
+      border-radius: 4px;
+      text-transform: uppercase;
+      background: var(--surface-white);
+      box-shadow: 1px 1px 0px var(--border-black);
+    }
+
+    .card-cat-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Core Card Text: Spacious, Centered & Highly Legible */
     .card-main-content {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 16px;
-      font-size: 1.5rem;
+      padding: clamp(6px, 2vw, 16px);
+      font-size: clamp(1.15rem, 4.2vw, 1.55rem);
       font-weight: 800;
-      line-height: 1.4;
+      line-height: 1.42;
       letter-spacing: -0.3px;
+      flex: 1;
     }
 
-    .card-back .card-main-content {
-      font-size: 1.35rem;
-      font-weight: 800;
+    .card-face.card-back .card-main-content {
+      font-size: clamp(1.2rem, 4.5vw, 1.6rem);
       color: var(--ink);
-      background: var(--neo-yellow);
-      border: 2.5px solid var(--border-black);
-      box-shadow: var(--shadow-sm);
-      border-radius: var(--radius-sm);
-      padding: 24px 20px;
     }
 
-    /* Chunky Action Buttons */
+    .card-tap-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: clamp(0.7rem, 2vw, 0.78rem);
+      font-weight: 700;
+      color: var(--ink-muted);
+      background: oklch(0 0 0 / 0.05);
+      padding: 4px 10px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    /* Chunky Action Buttons - Thumb-Friendly Side-by-Side */
     .action-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 8px;
+      gap: clamp(8px, 2.5vw, 14px);
+      width: 100%;
+      margin-top: 2px;
     }
 
     .btn-action {
-      min-height: 52px;
+      min-height: 48px;
+      height: clamp(48px, 6.5vh, 56px);
       border: var(--border-thick);
       box-shadow: var(--shadow-base);
       border-radius: var(--radius-sm);
       font-family: var(--font-display);
-      font-size: 1.05rem;
+      font-size: clamp(0.88rem, 2.8vw, 1.05rem);
       font-weight: 800;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: transform 0.05s ease, box-shadow 0.05s ease;
+      gap: 6px;
+      padding: 8px 12px;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s ease;
+      white-space: nowrap;
     }
 
     .btn-not-yet {
       background: var(--neo-coral);
       color: #ffffff;
     }
-    .btn-not-yet:hover {
-      background: oklch(0.68 0.24 25);
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0px var(--border-black);
+    @media (hover: hover) {
+      .btn-not-yet:hover {
+        background: oklch(0.68 0.24 25);
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px var(--border-black);
+      }
     }
 
     .btn-got-it {
       background: var(--neo-lime);
       color: var(--ink);
     }
-    .btn-got-it:hover {
-      background: oklch(0.82 0.24 140);
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0px var(--border-black);
+    @media (hover: hover) {
+      .btn-got-it:hover {
+        background: oklch(0.82 0.24 140);
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px var(--border-black);
+      }
     }
 
     .btn-action:active {
       transform: translate(2px, 2px);
       box-shadow: 2px 2px 0px var(--border-black);
+    }
+
+    /* Shortcuts Footer (Desktop only) */
+    .shortcuts-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
+    .shortcuts-footer kbd {
+      background: oklch(0 0 0 / 0.07);
+      border: 1.5px solid var(--border-black);
+      box-shadow: 1px 1px 0px var(--border-black);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.72rem;
+      color: var(--ink);
+    }
+
+    @media (max-width: 600px) {
+      .shortcuts-footer {
+        display: none;
+      }
     }
 
     /* ============================================================
@@ -417,23 +603,25 @@
       border: var(--border-thick);
       box-shadow: var(--shadow-lg);
       border-radius: var(--radius-neo);
-      padding: 30px 20px;
+      padding: clamp(20px, 4vw, 36px) clamp(16px, 3.5vw, 24px);
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: clamp(14px, 3vw, 22px);
+      width: 100%;
     }
 
     .summary-title {
-      font-size: 1.6rem;
+      font-size: clamp(1.3rem, 4.2vw, 1.75rem);
       font-weight: 800;
       letter-spacing: -0.5px;
+      line-height: 1.2;
       margin-bottom: 6px;
     }
 
     .summary-subtitle {
-      font-size: 0.95rem;
+      font-size: clamp(0.85rem, 2.5vw, 0.98rem);
       font-weight: 600;
       color: var(--ink-muted);
-      margin-bottom: 16px;
+      margin-bottom: clamp(14px, 3vw, 20px);
     }
 
     .score-banner {
@@ -442,37 +630,69 @@
       box-shadow: var(--shadow-base);
       border-radius: var(--radius-sm);
       display: inline-block;
-      padding: 12px 28px;
-      margin-bottom: 16px;
+      padding: clamp(8px, 2.5vw, 14px) clamp(20px, 5vw, 32px);
+      margin-bottom: clamp(12px, 2.5vw, 16px);
     }
 
     .score-digits {
-      font-size: 2.8rem;
+      font-size: clamp(2.2rem, 7vw, 3.2rem);
       font-weight: 800;
       line-height: 1;
       font-family: var(--font-mono);
     }
 
     .score-feedback {
-      font-size: 1.05rem;
+      font-size: clamp(0.95rem, 2.8vw, 1.15rem);
       font-weight: 700;
     }
 
     .summary-actions-stack {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: clamp(8px, 2vw, 12px);
+      width: 100%;
     }
 
-    /* Responsive */
-    @media (max-width: 540px) {
-      body { padding: 12px; }
-      .screen { padding: 16px; }
-      .category-grid { grid-template-columns: 1fr; }
-      .card-main-content { font-size: 1.2rem; }
-      .card-back .card-main-content { font-size: 1.15rem; }
-      .action-grid { grid-template-columns: 1fr; }
-      .shortcuts-footer span:last-child { display: none; }
+    .summary-actions-stack .btn-action {
+      width: 100%;
+    }
+
+    /* ============================================================
+       MOBILE LANDSCAPE ORIENTATION ADAPTATION
+       ============================================================ */
+    @media (max-height: 520px) {
+      body {
+        padding: 6px;
+      }
+      .screen {
+        padding: 10px 14px;
+      }
+      .cat-headline-block {
+        margin-bottom: 8px;
+      }
+      .deck-topbar {
+        margin-bottom: 8px;
+      }
+      .neo-progress-wrap {
+        height: 12px;
+        margin-bottom: 8px;
+      }
+      .flashcard-stage {
+        min-height: 150px;
+        margin-bottom: 8px;
+      }
+      .card-face {
+        padding: 8px 14px;
+      }
+      .card-main-content {
+        font-size: 1.15rem;
+        padding: 4px 8px;
+      }
+      .btn-action {
+        min-height: 42px;
+        height: 42px;
+        font-size: 0.9rem;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -492,6 +712,7 @@
     <!-- ==================== SCREEN 1: KATEGORI ==================== -->
     <section class="screen screen-categories active" id="screenCategories" aria-label="Pilih Topik Belajar">
       <div class="cat-headline-block">
+        <div class="cat-brand-tag">&#10024; FLASHCARD ANATOMI</div>
         <h2 class="cat-headline-title">PILIH SISTEM ANATOMI</h2>
         <p class="cat-headline-sub">Pilih salah satu topik di bawah untuk memulai sesi latihan flashcard:</p>
       </div>
@@ -505,8 +726,10 @@
 
       <!-- Topbar Controls -->
       <div class="deck-topbar">
-        <button class="neo-btn" id="btnBackToCat">
-          <span aria-hidden="true">&#8592;</span> Kategori (Esc)
+        <button class="neo-btn" id="btnBackToCat" aria-label="Kembali ke Menu Kategori">
+          <span aria-hidden="true">&#8592;</span>
+          <span>Kategori</span>
+          <span class="kbd-hint">(Esc)</span>
         </button>
         
         <div class="deck-counter-badge" id="deckCounterBadge" aria-live="polite">
@@ -514,8 +737,8 @@
         </div>
 
         <button class="neo-btn" id="btnShuffleDeck" aria-label="Acak urutan kartu">
-          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 100 100" style="display:inline-block;vertical-align:middle;"><path fill="currentColor" d="M19.401 62.222H8.022a2.536 2.536 0 0 0-3.013 2h-.047v11h.076a2.53 2.53 0 0 0 2.078 1.906v.094h17v-.061c1.739-.021 3.23-1.008 4.002-2.443L38.63 64.206L28.024 53.599zm75.25-31.446l-18.614-13.26a1.25 1.25 0 0 0-1.319-.094a1.28 1.28 0 0 0-.688 1.146l.002 5.599H59.116v.026a4.58 4.58 0 0 0-2.781 1.138l-.021-.021L45.722 35.9l10.607 10.607l7.341-7.341h10.368l.002 6.005c0 .481.271.924.7 1.146s.946.183 1.34-.099l18.576-13.346c.338-.241.461-.631.461-1.046v-.003c-.001-.417-.126-.806-.466-1.047"/><path fill="currentColor" d="M94.578 67.126L76.002 53.781a1.289 1.289 0 0 0-2.039 1.047l-.002 6.005H63.592L28.04 25.281c-.772-1.435-2.263-2.421-4.001-2.442v-.061h-17v.094a2.53 2.53 0 0 0-2.078 1.906h-.077v11h.049a2.535 2.535 0 0 0 3.013 2h11.378l36.913 36.913l.021-.021a4.6 4.6 0 0 0 2.782 1.138v.026h14.916l-.002 5.599c0 .484.26.928.688 1.146a1.25 1.25 0 0 0 1.319-.093l18.614-13.26c.34-.242.465-.631.465-1.049v-.004c-.001-.415-.124-.806-.462-1.047"/></svg>
-          Acak
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 100 100" style="display:inline-block;vertical-align:middle;"><path fill="currentColor" d="M19.401 62.222H8.022a2.536 2.536 0 0 0-3.013 2h-.047v11h.076a2.53 2.53 0 0 0 2.078 1.906v.094h17v-.061c1.739-.021 3.23-1.008 4.002-2.443L38.63 64.206L28.024 53.599zm75.25-31.446l-18.614-13.26a1.25 1.25 0 0 0-1.319-.094a1.28 1.28 0 0 0-.688 1.146l.002 5.599H59.116v.026a4.58 4.58 0 0 0-2.781 1.138l-.021-.021L45.722 35.9l10.607 10.607l7.341-7.341h10.368l.002 6.005c0 .481.271.924.7 1.146s.946.183 1.34-.099l18.576-13.346c.338-.241.461-.631.461-1.046v-.003c-.001-.417-.126-.806-.466-1.047"/><path fill="currentColor" d="M94.578 67.126L76.002 53.781a1.289 1.289 0 0 0-2.039 1.047l-.002 6.005H63.592L28.04 25.281c-.772-1.435-2.263-2.421-4.001-2.442v-.061h-17v.094a2.53 2.53 0 0 0-2.078 1.906h-.077v11h.049a2.535 2.535 0 0 0 3.013 2h11.378l36.913 36.913l.021-.021a4.6 4.6 0 0 0 2.782 1.138v.026h14.916l-.002 5.599c0 .484.26.928.688 1.146a1.25 1.25 0 0 0 1.319-.093l18.614-13.26c.34-.242.465-.631.465-1.049v-.004c-.001-.415-.124-.806-.462-1.047"/></svg>
+          <span>Acak</span>
         </button>
       </div>
 
@@ -524,29 +747,55 @@
         <div class="neo-progress-fill" id="progressFill"></div>
       </div>
 
-      <!-- 3D Flashcard -->
+      <!-- 3D Flashcard Presentation -->
       <div class="flashcard-stage">
-        <div class="flashcard-card" id="flashcardEl" role="button" tabindex="0" aria-label="Kartu pertanyaan. Tekan spasi atau klik untuk membalik.">
-          <!-- Front Side -->
+        <div class="flashcard-card" id="flashcardEl" role="button" tabindex="0" aria-label="Kartu flashcard. Tekan spasi atau ketuk untuk membalik.">
+          <!-- Front Side (Pertanyaan) -->
           <div class="card-face card-front">
+            <div class="card-header-badge">
+              <span class="card-type-tag">PERTANYAAN</span>
+              <span class="card-cat-badge" id="cardCatBadgeFront">SISTEM ANATOMI</span>
+            </div>
             <div class="card-main-content" id="frontText">Memuat pertanyaan...</div>
+            <div class="card-tap-hint">
+              <span aria-hidden="true">&#8646;</span>
+              <span>Ketuk untuk lihat jawaban</span>
+            </div>
           </div>
 
-          <!-- Back Side -->
+          <!-- Back Side (Jawaban) -->
           <div class="card-face card-back">
+            <div class="card-header-badge">
+              <span class="card-type-tag">JAWABAN</span>
+              <span class="card-cat-badge" id="cardCatBadgeBack">SISTEM ANATOMI</span>
+            </div>
             <div class="card-main-content" id="backText">Memuat jawaban...</div>
+            <div class="card-tap-hint">
+              <span aria-hidden="true">&#8646;</span>
+              <span>Ketuk untuk lihat pertanyaan</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Assessment Actions -->
+      <!-- Assessment Actions: Thumb-Friendly Side-by-Side -->
       <div class="action-grid" id="actionGrid">
         <button class="btn-action btn-not-yet" id="btnNotYet" aria-label="Tandai belum ingat">
-          <span aria-hidden="true">&#10005;</span> Belum Ingat
+          <span aria-hidden="true">&#10005;</span>
+          <span>Belum Ingat</span>
         </button>
         <button class="btn-action btn-got-it" id="btnGotIt" aria-label="Tandai sudah paham">
-          <span aria-hidden="true">&#10003;</span> Sudah Paham
+          <span aria-hidden="true">&#10003;</span>
+          <span>Sudah Paham</span>
         </button>
+      </div>
+
+      <!-- Desktop Shortcuts Footer -->
+      <div class="shortcuts-footer" aria-hidden="true">
+        <span><kbd>Spasi</kbd> Balik</span>
+        <span><kbd>&larr;</kbd> Belum Ingat</span>
+        <span><kbd>&rarr;</kbd> Paham</span>
+        <span><kbd>Esc</kbd> Menu</span>
       </div>
     </section>
 
@@ -589,6 +838,9 @@
         audioCtx.resume();
       }
     }
+
+    // Unlock Web Audio immediately on first touch/click
+    document.addEventListener('pointerdown', () => initAudio(), { once: true });
 
     function playTone(freq, duration, type = 'square', gainVal = 0.05) {
       if (!soundEnabled) return;
@@ -744,8 +996,10 @@
     let currentIndex = 0;
     let isFlipped = false;
     let results = [];
+    let lastSwipeTime = 0;
 
     // DOM Elements
+    const appShell = document.getElementById('appShell');
     const screenCategories = document.getElementById('screenCategories');
     const screenFlashcard = document.getElementById('screenFlashcard');
     const screenSummary = document.getElementById('screenSummary');
@@ -754,6 +1008,8 @@
     const flashcardEl = document.getElementById('flashcardEl');
     const frontText = document.getElementById('frontText');
     const backText = document.getElementById('backText');
+    const cardCatBadgeFront = document.getElementById('cardCatBadgeFront');
+    const cardCatBadgeBack = document.getElementById('cardCatBadgeBack');
     const deckCounterBadge = document.getElementById('deckCounterBadge');
     const progressFill = document.getElementById('progressFill');
     const progressBarEl = document.getElementById('progressBarEl');
@@ -767,13 +1023,17 @@
       screenSummary.classList.remove('active');
 
       if (name === 'categories') {
+        appShell.classList.remove('view-study');
         screenCategories.classList.add('active');
       } else if (name === 'flashcard') {
+        appShell.classList.add('view-study');
         screenFlashcard.classList.add('active');
       } else if (name === 'summary') {
+        appShell.classList.add('view-study');
         screenSummary.classList.add('active');
       }
       currentScreen = name;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ============================================================
@@ -784,7 +1044,7 @@
         <button class="category-card" data-cat="${cat.id}" role="listitem">
           <div class="cat-card-header">
             <span class="cat-pill">${cat.tag}</span>
-            <span style="font-family:var(--font-mono);font-size:0.8rem;font-weight:700;">${cat.cards.length} KARTU</span>
+            <span class="cat-count">${cat.cards.length} KARTU</span>
           </div>
           <div>
             <div class="cat-card-title">${cat.name}</div>
@@ -792,7 +1052,7 @@
           </div>
           <div class="cat-card-footer">
             <span>MULAI BELAJAR</span>
-            <span>&rarr;</span>
+            <span aria-hidden="true">&rarr;</span>
           </div>
         </button>
       `).join('');
@@ -813,6 +1073,11 @@
       currentIndex = 0;
       isFlipped = false;
       results = [];
+
+      // Update category indicator badges on card
+      const upperName = currentCategory.name.toUpperCase();
+      if (cardCatBadgeFront) cardCatBadgeFront.textContent = upperName;
+      if (cardCatBadgeBack) cardCatBadgeBack.textContent = upperName;
 
       updateFlashcardView();
       showScreen('flashcard');
@@ -845,7 +1110,12 @@
       flashcardEl.classList.toggle('flipped', isFlipped);
     }
 
-    flashcardEl.addEventListener('click', flipCard);
+    flashcardEl.addEventListener('click', () => {
+      // Ignore click immediately after a touch swipe
+      if (Date.now() - lastSwipeTime < 320) return;
+      flipCard();
+    });
+
     flashcardEl.addEventListener('keydown', (e) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
@@ -986,18 +1256,31 @@
     });
 
     // ============================================================
-    // TOUCH SWIPE NAVIGATION
+    // TOUCH SWIPE NAVIGATION (Mobile Optimized)
     // ============================================================
     let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
     flashcardEl.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
     }, { passive: true });
 
     flashcardEl.addEventListener('touchend', (e) => {
       const dx = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(dx) > 60) {
-        if (dx > 0) assessCard(true);
-        else assessCard(false);
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      const dt = Date.now() - touchStartTime;
+
+      // Only trigger horizontal swipe when gesture is fast and distinctly horizontal
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4 && dt < 500) {
+        lastSwipeTime = Date.now();
+        if (dx > 0) {
+          assessCard(true); // Swipe kanan: Paham
+        } else {
+          assessCard(false); // Swipe kiri: Belum Ingat
+        }
       }
     }, { passive: true });
 
